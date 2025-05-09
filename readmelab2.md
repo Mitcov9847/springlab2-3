@@ -240,7 +240,8 @@ public interface AuthorService {
 Контроллеры управляют HTTP-запросами и отправляют данные в клиентский интерфейс.
 
 #### AuthorController.java
-```@RestController
+```
+@RestController
 @RequestMapping("/api/authors")
 @RequiredArgsConstructor
 public class AuthorController {
@@ -272,7 +273,7 @@ public class AuthorController {
         authorService.deleteAuthor(id);
     }
 }
-
+```
 
 ## Заключение
 Данная лабораторная работа позволила мне реализовать полноценное Spring Boot приложение с использованием архитектуры с разделением слоев: контроллеры, сервисы, DAO и DTO. Также была продемонстрирована интеграция с Swagger для тестирования API.
