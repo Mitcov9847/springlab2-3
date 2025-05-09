@@ -111,15 +111,17 @@ mvn spring-boot:run
 
 ## Пример работы с Swagger
 После запуска приложения я перешел на Swagger UI, где увидел визуализированный интерфейс для работы с API. В Swagger доступны все методы, описанные в контроллерах, и возможность отправлять HTTP-запросы.
+![image](https://github.com/user-attachments/assets/3858dae4-69fb-4273-aeac-296ec82aaa12)
 
 ## Действия в Swagger:
 Перешел в раздел /authors, чтобы увидеть доступные методы для работы с авторами. Выбрал метод GET /authors, чтобы получить список авторов.
+![image](https://github.com/user-attachments/assets/9c949db9-1a21-4330-ad21-4391d623a17a)
 
 Попробовал создать нового автора. Выбрал метод POST /authors и заполнил форму:
+![image](https://github.com/user-attachments/assets/983a9bde-151f-4a95-a9b8-89fc9cac36cf)
 
 Проверил созданного автора с помощью метода GET /authors/{id}, где ввел ID нового автора, чтобы получить информацию о нем.
-
-## Скриншот интерфейса Swagger
+![image](https://github.com/user-attachments/assets/7f104282-e042-45c3-9b6d-03f3243cf888)
 
 ## Самый важный код
 1. Entity Classes (Сущности)
