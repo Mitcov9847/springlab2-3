@@ -99,60 +99,26 @@
    spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=library_db
    spring.datasource.username=your_username
    spring.datasource.password=your_password
-Выполнил сборку:
-
-bash
-Копировать
-Редактировать
+   
+## Выполнил сборку:
 mvn clean install
 Запустил приложение:
-
-bash
-Копировать
-Редактировать
 mvn spring-boot:run
 Перешел по адресу http://localhost:8080/swagger-ui.html для взаимодействия с API.
 
-Пример работы с Swagger
+## Пример работы с Swagger
 После запуска приложения я перешел на Swagger UI, где увидел визуализированный интерфейс для работы с API. В Swagger доступны все методы, описанные в контроллерах, и возможность отправлять HTTP-запросы.
 
-Действия в Swagger:
+## Действия в Swagger:
 Перешел в раздел /authors, чтобы увидеть доступные методы для работы с авторами. Выбрал метод GET /authors, чтобы получить список авторов.
 
 Попробовал создать нового автора. Выбрал метод POST /authors и заполнил форму:
 
-json
-Копировать
-Редактировать
-{
-  "name": "Айзек Азимов"
-}
-Нажал Execute, чтобы отправить запрос.
-
 Проверил созданного автора с помощью метода GET /authors/{id}, где ввел ID нового автора, чтобы получить информацию о нем.
 
-Скриншот интерфейса Swagger
+## Скриншот интерфейса Swagger
 
-Примеры HTTP-запросов
-Создание автора (POST /authors)
-json
-Копировать
-Редактировать
-{
-  "name": "Айзек Азимов"
-}
-Создание книги (POST /books)
-json
-Копировать
-Редактировать
-{
-  "title": "Основание",
-  "year": 1951,
-  "authorId": 1,
-  "publisherId": 1,
-  "categoryIds": [1, 2]
-}
-Самый важный код
+## Самый важный код
 1. Entity Classes (Сущности)
 Сущности являются основой для работы с базой данных и описывают структуру данных. Они также служат для отображения объектов в базе данных.
 
@@ -203,7 +169,7 @@ public class Book {
     
     // Getters and Setters
 }
-2. DTO Classes (Объекты передачи данных)
+## 2. DTO Classes (Объекты передачи данных)
 DTO используется для разделения внутренней модели (Entity) и внешнего API, чтобы минимизировать риски утечек данных.
 
 AuthorDTO.java
@@ -230,7 +196,7 @@ public class BookDTO {
     
     // Getters and Setters
 }
-3. DAO Layer (Слой DAO)
+## 3. DAO Layer (Слой DAO)
 Для работы с базой данных я использовал EntityManager в репозиториях, чтобы избежать использования Spring Data JPA.
 
 AuthorDaoImpl.java
@@ -270,7 +236,7 @@ public class AuthorDaoImpl implements AuthorDao {
         }
     }
 }
-4. Service Layer (Бизнес-логика)
+## 4. Service Layer (Бизнес-логика)
 В сервисах выполняется бизнес-логика и маппинг между сущностями и DTO.
 
 AuthorService.java
@@ -305,22 +271,6 @@ public class AuthorService {
         return new AuthorDTO(author.getId(), author.getName());
     }
 
-    public void
-
-
-
-
-
-
-ChatGPT сказал:
-deleteAuthor(Long id) {
-authorDao.delete(id);
-}
-}
-
-kotlin
-Копировать
-Редактировать
 
 ### 5. **Controller Layer (Контроллеры)**
 
@@ -358,5 +308,6 @@ public class AuthorController {
         authorService.deleteAuthor(id);
     }
 }
-Заключение
+
+## Заключение
 Данная лабораторная работа позволила мне реализовать полноценное Spring Boot приложение с использованием архитектуры с разделением слоев: контроллеры, сервисы, DAO и DTO. Также была продемонстрирована интеграция с Swagger для тестирования API.
