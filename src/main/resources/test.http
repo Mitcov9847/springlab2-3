@@ -1,0 +1,83 @@
+### ========== AUTHORS ==========
+
+### Получить всех авторов
+GET http://localhost:8080/api/authors
+
+### Добавить автора
+POST http://localhost:8080/api/authors
+Content-Type: application/json
+
+{
+  "name": "Jules Verne"
+}
+
+### Обновить автора
+PUT http://localhost:8080/api/authors/1
+Content-Type: application/json
+
+{
+  "name": "Updated Author Name"
+}
+
+### Удалить автора
+DELETE http://localhost:8080/api/authors/1
+
+
+### ========== PUBLISHERS ==========
+
+### Получить всех издателей
+GET http://localhost:8080/api/publishers
+
+### Добавить издателя
+POST http://localhost:8080/api/publishers
+Content-Type: application/json
+
+{
+  "name": "Oxford University Press"
+}
+
+### Обновить издателя
+PUT http://localhost:8080/api/publishers/1
+Content-Type: application/json
+
+{
+  "name": "Updated Publisher Name"
+}
+
+### Удалить издателя
+DELETE http://localhost:8080/api/publishers/1
+
+
+### ========== BOOKS ==========
+
+### Получить все книги
+GET http://localhost:8080/api/books
+
+### Добавить книгу
+POST http://localhost:8080/api/books
+Content-Type: application/json
+
+{
+  "title": "Twenty Thousand Leagues Under the Seas",
+  "authorId": 2,
+  "publisherId": 1,
+  "categoryIds": []
+}
+
+### Получить книгу по ID
+GET http://localhost:8080/api/books/1
+
+### Обновить книгу
+PUT http://localhost:8080/api/books/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "Twenty Thousand Leagues Under the Seas (Updated)",
+  "authorId": 2,
+  "publisherId": 1,
+  "categoryIds": []
+}
+
+### Удалить книгу
+DELETE http://localhost:8080/api/books/1
