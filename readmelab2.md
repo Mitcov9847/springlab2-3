@@ -95,10 +95,13 @@
 
 1. Установил Java 17 и Maven.
 2. Настроил базу данных MSSQL и указал параметры в `application.properties`:
-   ```properties
-   spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=library_db
-   spring.datasource.username=your_username
-   spring.datasource.password=your_password
+spring.datasource.url=jdbc:mysql://localhost:3306/library_management?useSSL=false&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.open-in-view=false
    
 ## Выполнил сборку:
 mvn clean install
@@ -121,100 +124,90 @@ mvn spring-boot:run
 ## Самый важный код
 1. Entity Classes (Сущности)
 Сущности являются основой для работы с базой данных и описывают структуру данных. Они также служат для отображения объектов в базе данных.
-
-Author.java
-java
-Копировать
-Редактировать
-@Entity
+```
 public class Author {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String name;
     
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Book> books;
-    
-    // Getters and Setters
 }
-Book.java
-java
-Копировать
-Редактировать
-@Entity
+
 public class Book {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String title;
-    private int year;
-    
+
     @ManyToOne
     @JoinColumn(name = "author_id")
     private Author author;
-    
+
     @ManyToOne
     @JoinColumn(name = "publisher_id")
     private Publisher publisher;
-    
+
     @ManyToMany
     @JoinTable(
-      name = "book_category", 
-      joinColumns = @JoinColumn(name = "book_id"), 
-      inverseJoinColumns = @JoinColumn(name = "category_id"))
+            name = "book_category",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     private List<Category> categories;
-    
-    // Getters and Setters
 }
+
+```
 ## 2. DTO Classes (Объекты передачи данных)
 DTO используется для разделения внутренней модели (Entity) и внешнего API, чтобы минимизировать риски утечек данных.
+```
+public interface AuthorDao {
+    Author save(Author entity);
+    Author update(Author entity);
+    void delete(Long id);
+    Author findById(Long id);
+    List<Author> findAll();
+}
 
-AuthorDTO.java
-java
-Копировать
-Редактировать
-public class AuthorDTO {
-    private Long id;
-    private String name;
-    
-    // Getters and Setters
+public interface BookDao {
+    Book save(Book entity);
+    Book update(Book entity);
+    void delete(Long id);
+    Book findById(Long id);
+    List<Book> findAll();
 }
-BookDTO.java
-java
-Копировать
-Редактировать
-public class BookDTO {
-    private Long id;
-    private String title;
-    private int year;
-    private Long authorId;
-    private Long publisherId;
-    private List<Long> categoryIds;
-    
-    // Getters and Setters
-}
+```
 ## 3. DAO Layer (Слой DAO)
 Для работы с базой данных я использовал EntityManager в репозиториях, чтобы избежать использования Spring Data JPA.
-
-AuthorDaoImpl.java
-java
-Копировать
-Редактировать
+```
 @Repository
+@Transactional
 public class AuthorDaoImpl implements AuthorDao {
+
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public Author save(Author author) {
-        if (author.getId() == null) {
-            entityManager.persist(author);
-            return author;
-        } else {
-            return entityManager.merge(author);
+    public Author save(Author entity) {
+        entityManager.persist(entity);
+        return entity;
+    }
+
+    @Override
+    public Author update(Author entity) {
+        return entityManager.merge(entity);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Author entity = findById(id);
+        if (entity != null) {
+            entityManager.remove(entity);
         }
     }
 
@@ -225,89 +218,61 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public List<Author> findAll() {
-        return entityManager.createQuery("SELECT a FROM Author a", Author.class).getResultList();
-    }
-
-    @Override
-    public void delete(Long id) {
-        Author author = findById(id);
-        if (author != null) {
-            entityManager.remove(author);
-        }
+        return entityManager.createQuery("FROM Author", Author.class).getResultList();
     }
 }
+```
+
 ## 4. Service Layer (Бизнес-логика)
 В сервисах выполняется бизнес-логика и маппинг между сущностями и DTO.
-
-AuthorService.java
-java
-Копировать
-Редактировать
-@Service
-public class AuthorService {
-
-    private final AuthorDao authorDao;
-    
-    public AuthorService(AuthorDao authorDao) {
-        this.authorDao = authorDao;
-    }
-
-    public AuthorDTO getAuthor(Long id) {
-        Author author = authorDao.findById(id);
-        return new AuthorDTO(author.getId(), author.getName());
-    }
-
-    public List<AuthorDTO> getAllAuthors() {
-        List<Author> authors = authorDao.findAll();
-        return authors.stream()
-                      .map(a -> new AuthorDTO(a.getId(), a.getName()))
-                      .collect(Collectors.toList());
-    }
-
-    public AuthorDTO createAuthor(AuthorDTO authorDTO) {
-        Author author = new Author();
-        author.setName(authorDTO.getName());
-        authorDao.save(author);
-        return new AuthorDTO(author.getId(), author.getName());
-    }
-
+```
+public interface AuthorService {
+    AuthorDto createAuthor(AuthorDto authorDto);
+    AuthorDto getAuthorById(Long id);
+    List<AuthorDto> getAllAuthors();
+    AuthorDto updateAuthor(Long id, AuthorDto authorDto);
+    void deleteAuthor(Long id);
+}
+```
 
 ### 5. **Controller Layer (Контроллеры)**
 
 Контроллеры управляют HTTP-запросами и отправляют данные в клиентский интерфейс.
 
 #### AuthorController.java
-```java
-@RestController
-@RequestMapping("/authors")
+```@RestController
+@RequestMapping("/api/authors")
+@RequiredArgsConstructor
 public class AuthorController {
 
     private final AuthorService authorService;
 
-    public AuthorController(AuthorService authorService) {
-        this.authorService = authorService;
-    }
-
-    @GetMapping
-    public List<AuthorDTO> getAllAuthors() {
-        return authorService.getAllAuthors();
+    @PostMapping
+    public AuthorDto create(@RequestBody AuthorDto dto) {
+        return authorService.createAuthor(dto);
     }
 
     @GetMapping("/{id}")
-    public AuthorDTO getAuthor(@PathVariable Long id) {
-        return authorService.getAuthor(id);
+    public AuthorDto getById(@PathVariable Long id) {
+        return authorService.getAuthorById(id);
     }
 
-    @PostMapping
-    public AuthorDTO createAuthor(@RequestBody AuthorDTO authorDTO) {
-        return authorService.createAuthor(authorDTO);
+    @GetMapping
+    public List<AuthorDto> getAll() {
+        return authorService.getAllAuthors();
+    }
+
+    @PutMapping("/{id}")
+    public AuthorDto update(@PathVariable Long id, @RequestBody AuthorDto dto) {
+        return authorService.updateAuthor(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAuthor(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         authorService.deleteAuthor(id);
     }
 }
+
 
 ## Заключение
 Данная лабораторная работа позволила мне реализовать полноценное Spring Boot приложение с использованием архитектуры с разделением слоев: контроллеры, сервисы, DAO и DTO. Также была продемонстрирована интеграция с Swagger для тестирования API.
